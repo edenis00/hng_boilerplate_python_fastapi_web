@@ -23,3 +23,26 @@ def add_to_wishlist(wishlist_data: WishlistCreate, db: Session = Depends(get_db)
 			raise HTTPException(status_code=400, detail="Product already in wishlist")
 		except ProductNotFoundException:
 			raise HTTPException(status_code=404, detail="Product not found")
+
+
+@wishlist.get("/", response_model=success_response)
+def get_wishlist(db: Session = Depends(get_db), current_user: User = Depends(user_service.get_current_user)):
+	if current_user is None:
+		return fail_response(
+			status_code=401,
+			message="Unauthorized",
+		)
+	else:
+		try:
+			wishlist_items = wishlist_service.fetch_all(db, current_user.id)
+			return success_response(
+				status_code=200,
+				message="Wishlist items retrieved successfully",
+				data={"wishlist": wishlist_items}
+			)
+		except Exception as e:
+			return fail_response(
+				status_code=500,
+				message="An error occurred while retrieving wishlist items",
+				data={"error": str(e)}
+			)

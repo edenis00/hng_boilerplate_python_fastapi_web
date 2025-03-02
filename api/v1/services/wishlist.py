@@ -37,8 +37,10 @@ class WishlistService(Service):
 	def fetch(self):
 		return super().fetch()
 	
-	def fetch_all(self):
-		return super().fetch_all()
+	def fetch_all(self, db: Session, user_id: str):
+		"""Fetch all wishlist items for a logged in user"""
+		wishlist_items = db.query(Wishlist).filter(Wishlist.user_id == user_id).all()
+		return wishlist_items
 	
 	def update(self):
 		return super().update()
